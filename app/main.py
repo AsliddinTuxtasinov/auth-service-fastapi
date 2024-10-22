@@ -1,14 +1,17 @@
-from typing import Union
-from fastapi import FastAPI, status
-from pydantic import BaseModel
+from fastapi import FastAPI, status, Depends
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.schemas.auth_schemas import UserAuthSchema
+from app.utils.users import UserUtils
 
 app = FastAPI()
 
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
+@app.post('/signup', summary="Create new user", status_code=status.HTTP_201_CREATED)  # response_model=UserOut
+async def create_user(data: UserAuthSchema, db: Session = Depends(get_db)):
+    user_utils = UserUtils()
+    return user_utils.create_user_if_not_exists(data=data, db_session=db)
 
 
 @app.get(path="/", status_code=status.HTTP_200_OK)
@@ -16,20 +19,4 @@ async def read_root():
     return {
         "success": True,
         "message": "Hello World!"
-    }
-
-
-@app.get(path="/detail/{item_id}", status_code=status.HTTP_200_OK)
-async def read_user(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.patch(path="/update/{item_id}", status_code=status.HTTP_200_OK)
-async def update_item(item_id: int, item: Item):
-
-    data = item.dict()
-    data.update({"item_id": item_id})
-    return {
-        "success": True,
-        "data": data,
     }

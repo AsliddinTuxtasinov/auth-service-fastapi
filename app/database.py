@@ -17,11 +17,18 @@ engine = create_engine(
 Base = declarative_base()
 
 # Create a session-maker to create database sessions.
-session = sessionmaker()
+session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 # Here, you've set up the basic components for interacting with the PostgresSQL database:
 # - `engine` to connect to the database
 # - `Base` as the base class for declarative models
 # - `Session` to create database sessions
 
-# You can now define your SQLAlchemy models using the `Base` class, and use the `Session` to interact with the database.
+# Dependency that creates a new database session for each request and closes it when done
+def get_db():
+    db = session()
+    try:
+        yield db
+    finally:
+        db.close()
