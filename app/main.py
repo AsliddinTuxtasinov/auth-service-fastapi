@@ -1,4 +1,6 @@
 from fastapi import FastAPI, status, Depends
+from fastapi.middleware.cors import CORSMiddleware
+
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -6,6 +8,15 @@ from app.schemas.auth_schemas import UserAuthSchema
 from app.utils.users import UserUtils
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for testing
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post('/signup', summary="Create new user", status_code=status.HTTP_201_CREATED)  # response_model=UserOut
