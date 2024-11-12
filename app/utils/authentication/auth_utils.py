@@ -1,10 +1,13 @@
 from datetime import timedelta, datetime, timezone
 from typing import Union, Any
 
+from fastapi import Depends, HTTPException, status, security
 from passlib.context import CryptContext
 
 from app.config import get_settings
-from jose import jwt
+from jose import jwt, JWTError
+
+oauth2bearer = security.APIKeyHeader(name='token', scheme_name="Auth Token")
 
 
 class JWTAuthUtils:
@@ -46,3 +49,18 @@ class JWTAuthUtils:
         to_encode = {"exp": expires_delta, "sub": str(subject)}
         encoded_jwt = jwt.encode(to_encode, self._JWT_REFRESH_SECRET_KEY, self._ALGORITHM)
         return encoded_jwt
+
+    def decode_access_token(self, token: str = Depends(oauth2bearer)) -> str:
+        """
+        :param token:
+        :return: user id
+        """
+        try:
+            # Decode the JWT token using the access secret key
+            payload = jwt.decode(token, self._JWT_SECRET_KEY, algorithms=[self._ALGORITHM])
+            # Ensure the token is not expired
+            if datetime.utcfromtimestamp(payload["exp"]) < datetime.utcnow():
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+            return payload["sub"]  # The user ID is in the "sub" field of the token
+        except JWTError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")

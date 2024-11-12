@@ -1,4 +1,6 @@
-from pydantic import BaseModel, constr, EmailStr, Field
+import datetime
+
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserLoginSchema(BaseModel):
@@ -9,3 +11,25 @@ class UserLoginSchema(BaseModel):
 
 class UserAuthSchema(UserLoginSchema):
     email: EmailStr  # Ensures the email is a valid email address format
+
+    class Config:
+        orm_mode = True  # Enables Pydantic to work with ORM objects directly
+        from_attributes = True
+
+
+class UserSchema(BaseModel):
+    email: EmailStr
+    phone_number: str
+    created_at: datetime  # Datetime type for created_at field
+    is_verified: bool
+
+    class Config:
+        orm_mode = True  # Enables Pydantic to work with ORM objects directly
+        from_attributes = True
+        arbitrary_types_allowed = True  # This allows Pydantic to work with datetime
+
+
+class ResponseLoginSchema(BaseModel):
+    user: UserSchema
+    access: str  # Token for access
+    refresh: str  # Token for refreshing the session
