@@ -25,10 +25,12 @@ session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # - `Base` as the base class for declarative models
 # - `Session` to create database sessions
 
+
 # Dependency that creates a new database session for each request and closes it when done
+# Here, you're directly returning the session for gRPC usage.
 def get_db():
     db = session()
     try:
-        yield db
+        return db  # Directly return the session
     finally:
-        db.close()
+        db.close()  # Close the session after use

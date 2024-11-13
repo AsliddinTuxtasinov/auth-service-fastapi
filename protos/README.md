@@ -14,14 +14,14 @@ def run():
 
     # Test SignUp
     sign_up_request = user_pb2.UserAuthRequest(
-        username="+998903908839", password="password123", email="new_user@example.com"
+        phone_number="+998903908839", password="password123", email="new_user@example.com"
     )
     sign_up_response = stub.SignUp(sign_up_request)
     print(f"SignUp Response: {sign_up_response}")
 
     # Test Login
     login_request = user_pb2.UserLoginRequest(
-        username="+998903908839", password="password123"
+        phone_number="+998903908839", password="password123"
     )
     login_response = stub.Login(login_request)
     print(f"Login Response: {login_response}")
