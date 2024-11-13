@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package user;
+
+// Define the user service with the login function
+service UserService {
+    rpc Login(UserLoginRequest) returns (ResponseLogin);     // Login method
+    rpc SignUp(UserAuthRequest) returns (SignUpResponse);    // Sign-up method
+    rpc GetUser(GetUserRequest) returns (UserResponse);      // Get-User method
+}
+
+// Request for User Login
+message UserLoginRequest {
+    string phone_number = 1;
+    string password = 2;
+}
+
+// Request for User Authentication (Sign-Up)
+message UserAuthRequest {
+    string phone_number = 1;
+    string email = 2;
+    string password = 3;
+}
+
+// Message to represent a User, includes fields for UserSchema
+message User {
+    string email = 1;
+    string phone_number = 2;
+    string created_at = 3;  // Use string to represent datetime
+    bool is_verified = 4;
+}
+
+// Response for Login, includes tokens and user information
+message ResponseLogin {
+    User user = 1;
+    string access = 2;
+    string refresh = 3;
+}
+
+// Message for Sign-Up response
+message SignUpResponse {
+    bool success = 1;
+    string message = 2;
+    User user = 3;  // User information if sign-up is successful
+}
+
+// Request for GetUser, using the token
+message GetUserRequest {
+    string token = 1;
+}
+
+// Response for GetUser, includes User information
+message UserResponse {
+    User user = 1;
+    string message = 2;
+}
